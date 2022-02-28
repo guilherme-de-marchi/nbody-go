@@ -1,8 +1,8 @@
 package main
 
 type Universe struct {
-	Size    Coordinates2D
-	Gconst  float64
+	Size    Coordinates2D `json:"size,omitempty"`
+	Gconst  float64       `json:"gravitational_const,omitempty"`
 	Objects []*Object
 }
 

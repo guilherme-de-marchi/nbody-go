@@ -1,10 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"image/color"
 	"log"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -18,20 +20,30 @@ const (
 )
 
 var (
-	square *ebiten.Image
+	simulConf SimulConfig
+	square    *ebiten.Image
 )
 
+type SimulConfig struct {
+	GenerationType string   `json:"generation_type,omitempty"`
+	Universe       Universe `json:"universe,omitempty"`
+	RandOpt        RandOpt  `json:"random_options,omitempty"`
+	EditOpt        EditOpt  `json:"edit_options,omitempty"`
+}
+
 type RandOpt struct {
-	ObjectQtt   int
-	MassR, radR [2]float64
+	MassR     [2]float64 `json:"mass_range,omitempty"`
+	RadR      [2]float64 `json:"object_radius_range,omitempty"`
+	ObjectQtt int        `json:"object_quantity,omitempty"`
 }
 
 type EditOpt struct {
-	ObjectsDesloc    int
-	GconstDesloc     float64
-	Zoom, ZoomDesloc float64
-	Offset           Coordinates2D
-	OffsetDesloc     float64
+	ObjectsDesloc int           `json:"object_quantity_desloc,omitempty"`
+	GconstDesloc  float64       `json:"gravitational_const_desloc,omitempty"`
+	Zoom          float64       `json:"initial_zoom,omitempty"`
+	ZoomDesloc    float64       `json:"zoom_desloc,omitempty"`
+	Offset        Coordinates2D `json:"initial_offset,omitempty"`
+	OffsetDesloc  float64       `json:"offset_desloc,omitempty"`
 }
 
 type Game struct {
@@ -51,7 +63,7 @@ func (g *Game) Update() error {
 			g.Universe.Size,
 			g.Universe.Gconst,
 			g.MassR,
-			g.radR,
+			g.RadR,
 			g.ObjectQtt,
 		)
 	}
@@ -161,40 +173,36 @@ func printObjects(u *Universe) {
 }
 
 func main() {
-	// objs := []*Object{
-	// 	NewObject(Coordinates2D{10, 10}, 10000000000, 1),
-	// 	NewObject(Coordinates2D{50, 50}, 10, 1),
-	// }
-	// universe := NewUniverse(Coordinates2D{SCREEN_WIDTH, SCREEN_HEIGHT}, objs...)
+	confJ, err := os.ReadFile("./config.json")
+	if err != nil {
+		log.Fatal("[INTERNAL ERROR]: ", err)
+	}
+	json.Unmarshal(confJ, &simulConf)
 
-	rand.Seed(time.Now().UnixNano())
-	universe := NewRandomUniverse(
-		Coordinates2D{SCREEN_WIDTH, SCREEN_HEIGHT},
-		G,
-		[2]float64{1, 1000},
-		[2]float64{1, 1},
-		10,
-	)
+	var universe *Universe
+	if simulConf.GenerationType == "randomized" {
+		rand.Seed(time.Now().UnixNano())
+		universe = NewRandomUniverse(
+			simulConf.Universe.Size,
+			G,
+			simulConf.RandOpt.MassR,
+			simulConf.RandOpt.RadR,
+			simulConf.RandOpt.ObjectQtt,
+		)
+	} else if simulConf.GenerationType == "prefab" {
+		log.Fatal("Generation type 'prefab' not implemented")
+	} else {
+		log.Fatal("Invalid value for field 'generation_type'")
+	}
 
 	ebiten.SetWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT)
 	ebiten.SetWindowTitle("Gravity Simulator")
 
 	g := &Game{
 		Universe: universe,
-		RandOpt: RandOpt{
-			10,
-			[2]float64{1, 1000},
-			[2]float64{1, 1},
-		},
-		EditOpt: EditOpt{
-			ObjectsDesloc: 10,
-			GconstDesloc:  2,
-			Zoom:          1,
-			ZoomDesloc:    2,
-			Offset:        Coordinates2D{0, 0},
-			OffsetDesloc:  10,
-		},
-		keys: []ebiten.Key{},
+		RandOpt:  simulConf.RandOpt,
+		EditOpt:  simulConf.EditOpt,
+		keys:     []ebiten.Key{},
 	}
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)

@@ -9,7 +9,8 @@ import (
 var G = 6.674 * math.Pow(10, -11)
 
 type Coordinates2D struct {
-	X, Y float64
+	X float64 `json:"x,omitempty"`
+	Y float64 `json:"y,omitempty"`
 }
 
 type Vector2 struct {

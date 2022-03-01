@@ -20,6 +20,8 @@ type EditOpt struct {
 	ShowWinGravityGrad   bool `json:"show_windown_gravity_gradient,omitempty"`
 	ShowTotalGravityGrad bool `json:"show_total_gravity_gradient,omitempty"`
 
+	GradExp       float64       `json:"initial_gradient_exp,omitempty"`
+	GradExpDesloc float64       `json:"gradient_exp_desloc,omitempty"`
 	ObjectsDesloc int           `json:"object_quantity_desloc,omitempty"`
 	GconstDesloc  float64       `json:"gravitational_const_desloc,omitempty"`
 	Zoom          float64       `json:"initial_zoom,omitempty"`
@@ -34,8 +36,9 @@ type Simulation struct {
 	RandOpt RandOpt
 	EditOpt EditOpt
 
-	GradientImage *image.RGBA
-	Keys          []ebiten.Key
+	WinGradientImage   *image.RGBA
+	TotalGradientImage *image.RGBA
+	Keys               []ebiten.Key
 }
 
 func NewSimulation(u *Universe, randOpt RandOpt, editOpt EditOpt) *Simulation {

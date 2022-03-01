@@ -8,6 +8,7 @@ import (
 
 	simul "github.com/Guilherme-De-Marchi/GravitySimulator/simulation"
 	"github.com/Guilherme-De-Marchi/GravitySimulator/util"
+	"github.com/fogleman/gg"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -18,12 +19,13 @@ const (
 	SCREEN_HEIGHT = 300
 )
 
-var square *ebiten.Image
+var circle *ebiten.Image
 
 type Game simul.Simulation
 
 func (g *Game) Init() error {
-	g.GradientImage = image.NewRGBA(image.Rect(0, 0, int(g.Universe.Size.X), int(g.Universe.Size.Y)))
+	g.WinGradientImage = image.NewRGBA(image.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
+	g.TotalGradientImage = image.NewRGBA(image.Rect(0, 0, int(g.Universe.Size.X), int(g.Universe.Size.Y)))
 
 	ebiten.SetWindowSize(SCREEN_WIDTH, SCREEN_HEIGHT)
 	ebiten.SetWindowTitle("Gravity Simulator")
@@ -39,6 +41,10 @@ func (g *Game) Init() error {
 func (g *Game) Update() error {
 	if g.EditOpt.ShowWinGravityGrad {
 		g.UpdateWinGravityGrad()
+	}
+
+	if g.EditOpt.ShowTotalGravityGrad {
+		g.UpdateTotalGravityGrad()
 	}
 
 	g.Keys = inpututil.AppendPressedKeys(g.Keys[:0])
@@ -59,10 +65,30 @@ func (g *Game) UpdateWinGravityGrad() {
 	rx := SCREEN_WIDTH / (g.Universe.Size.X * g.EditOpt.Zoom)
 	ry := SCREEN_HEIGHT / (g.Universe.Size.Y * g.EditOpt.Zoom)
 	gradient, high := g.Universe.GetViewGravityGradient(
-		g.Universe.Size,
+		g.EditOpt.GradExp,
+		[2]float64{SCREEN_WIDTH, SCREEN_HEIGHT},
 		[2]float64{rx, ry},
 		[2]float64{g.EditOpt.Offset.X, g.EditOpt.Offset.Y},
 	)
+	// log.Println(high)
+
+	var c color.RGBA
+	rc := high / util.MAX_RGB_INT
+	for i := 0; i < SCREEN_HEIGHT; i++ {
+		for j := 0; j < SCREEN_WIDTH; j++ {
+			f := gradient[i][j]
+			c = util.IntToRgb(int(f / rc))
+			g.WinGradientImage.Set(j, i, c)
+		}
+	}
+}
+
+func (g *Game) UpdateTotalGravityGrad() {
+	gradient, high := g.Universe.GetTotalGravityGradient(
+		1,
+		g.EditOpt.GradExp,
+	)
+	log.Println(high)
 
 	var c color.RGBA
 	rc := high / util.MAX_RGB_INT
@@ -70,7 +96,7 @@ func (g *Game) UpdateWinGravityGrad() {
 		for j := 0; j < int(g.Universe.Size.X); j++ {
 			f := gradient[i][j]
 			c = util.IntToRgb(int(f / rc))
-			g.GradientImage.Set(j, i, c)
+			g.TotalGradientImage.Set(j, i, c)
 		}
 	}
 }
@@ -86,6 +112,10 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	if g.EditOpt.ShowWinGravityGrad {
 		g.DrawWinGravGrad(screen)
+	}
+
+	if g.EditOpt.ShowTotalGravityGrad {
+		g.DrawTotalGravGrad(screen)
 	}
 
 	if g.EditOpt.ShowObject {
@@ -116,6 +146,8 @@ func (g *Game) DrawPauseScreen(screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen, "G + ArrowDown : Decreases Gravitational Constant", 0, 225)
 	ebitenutil.DebugPrintAt(screen, "O + ArrowUp : Add N Objects", 0, 240)
 	ebitenutil.DebugPrintAt(screen, "O + ArrowDown : Remove N Objects", 0, 255)
+	ebitenutil.DebugPrintAt(screen, "E + ArrowUp : Increases Gradient Exp", 0, 270)
+	ebitenutil.DebugPrintAt(screen, "E + ArrowDown : Decreases Gradient Exp", 0, 285)
 }
 
 func (g *Game) DrawDebug(screen *ebiten.Image) {
@@ -125,6 +157,7 @@ func (g *Game) DrawDebug(screen *ebiten.Image) {
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Universe size: %vx  %vy", g.Universe.Size.X, g.Universe.Size.Y), 0, 45)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Amount of objects: %v", len(g.Universe.Objects)), 0, 60)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Gravitational constant: %v", g.Universe.Gconst), 0, 75)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Gradient exp: %v", g.EditOpt.GradExp), 0, 90)
 
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Show objects: %v", g.EditOpt.ShowObject), 0, 105)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Show objects name: %v", g.EditOpt.ShowObjectName), 0, 120)
@@ -135,16 +168,30 @@ func (g *Game) DrawObject(screen *ebiten.Image) {
 	rx := SCREEN_WIDTH / (g.Universe.Size.X * g.EditOpt.Zoom)
 	ry := SCREEN_HEIGHT / (g.Universe.Size.Y * g.EditOpt.Zoom)
 
+	var ctx *gg.Context
 	for _, obj := range g.Universe.Objects {
-		square = ebiten.NewImage(1, 1)
-		square.Fill(obj.Color)
-
-		opts := &ebiten.DrawImageOptions{}
 		// Fix this
-		px, py := util.PosToPx([2]float64{obj.Pos.X, obj.Pos.Y}, [2]float64{rx, ry}, [2]float64{g.EditOpt.Offset.X, g.EditOpt.Offset.Y})
+		px, py := util.PosToPx(
+			[2]float64{obj.Pos.X - obj.Radius, obj.Pos.Y - obj.Radius},
+			[2]float64{rx, ry},
+			[2]float64{g.EditOpt.Offset.X, g.EditOpt.Offset.Y},
+		)
 
+		lx := int(obj.Radius * 2 * rx)
+		ly := int(obj.Radius * 2 * ry)
+		if lx <= 0 || ly <= 0 {
+			continue
+		}
+
+		ctx = gg.NewContext(lx, ly)
+		ctx.DrawCircle(float64(lx/2), float64(ly/2), float64(lx/2))
+		ctx.SetColor(obj.Color)
+		ctx.Fill()
+
+		circle = ebiten.NewImageFromImage(ctx.Image())
+		opts := &ebiten.DrawImageOptions{}
 		opts.GeoM.Translate(px, py)
-		screen.DrawImage(square, opts)
+		screen.DrawImage(circle, opts)
 
 		if g.EditOpt.ShowObjectName {
 			g.DrawObjectName(screen, obj, px, py)
@@ -153,15 +200,19 @@ func (g *Game) DrawObject(screen *ebiten.Image) {
 }
 
 func (g *Game) DrawObjectName(screen *ebiten.Image, obj *simul.Object, px, py float64) {
-	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Name: %v", obj.Name), int(px+10), int(py-15))
-	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Mass: %v", obj.Mass), int(px+10), int(py-30))
-	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Radius: %v", obj.Radius), int(px+10), int(py-45))
-	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Velocity: %v", obj.Vel), int(px+10), int(py-60))
-	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Acceleration: %v", obj.Accel), int(px+10), int(py-75))
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Name: %v", obj.Name), int(px), int(py-15))
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Mass: %v", obj.Mass), int(px), int(py-30))
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Radius: %v", obj.Radius), int(px), int(py-45))
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Velocity: %v", obj.Vel), int(px), int(py-60))
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Acceleration: %v", obj.Accel), int(px), int(py-75))
 }
 
 func (g *Game) DrawWinGravGrad(screen *ebiten.Image) {
-	screen.ReplacePixels(g.GradientImage.Pix)
+	screen.ReplacePixels(g.WinGradientImage.Pix)
+}
+
+func (g *Game) DrawTotalGravGrad(screen *ebiten.Image) {
+	screen.ReplacePixels(g.TotalGradientImage.Pix)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {

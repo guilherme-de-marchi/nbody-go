@@ -29,10 +29,10 @@ func GetRandomObjects(posR Coordinates2D, massR, radR [2]float64, qtt int) []*Ob
 	for i := range objs {
 		m := util.RandFloatRange(massR[0], massR[1])
 		r := util.RandFloatRange(radR[0], radR[1])
-
+		c := util.IntToRgbRange(int(m), int(massR[1]))
 		objs[i] = &Object{
 			Name:   util.RandString(8),
-			Color:  util.IntToRgbRange(int(m), int(massR[1])),
+			Color:  c,
 			Pos:    Coordinates2D{util.RandFloatRange(0, posR.X), util.RandFloatRange(0, posR.Y)},
 			Mass:   m,
 			Radius: r,
@@ -92,6 +92,9 @@ func (obj *Object) ApplyForce(f Vector2, tar *Object) {
 
 func (obj *Object) GetResultingAcceleration(f Vector2, tar *Object) float64 {
 	if obj.GetDistance(tar) <= obj.Radius+tar.Radius {
+		// Detect collision
+		// Add momentum
+		obj.Vel.Magnitude = 0
 		return 0
 	}
 	return CalcAcceleration(f, obj.Mass)

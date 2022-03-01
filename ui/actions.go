@@ -19,11 +19,13 @@ var KeyMap = map[ebiten.Key]ActionFunc{
 	ebiten.Key2:      ShowObject,
 	ebiten.Key3:      ShowObjectName,
 	ebiten.Key4:      ShowWinGravityGrad,
+	ebiten.Key5:      ShowTotalGravityGrad,
 
 	ebiten.KeyZ: SetZoom,
 	ebiten.KeyR: NewRandomUniverse,
 	ebiten.KeyG: SetGconst,
 	ebiten.KeyO: SetObjects,
+	ebiten.KeyE: SetGradExp,
 }
 
 // Key: W : Offset.Y -= Offset desloc
@@ -74,10 +76,17 @@ func ShowObjectName(g *Game) {
 	}
 }
 
-// Key: 4 : Show gravity gradient (on/off)
+// Key: 4 : Show gravity gradient of window (on/off)
 func ShowWinGravityGrad(g *Game) {
 	if inpututil.IsKeyJustPressed(ebiten.Key4) {
 		g.EditOpt.ShowWinGravityGrad = !g.EditOpt.ShowWinGravityGrad
+	}
+}
+
+// Key: 5 : Show total gravity gradient (on/off)
+func ShowTotalGravityGrad(g *Game) {
+	if inpututil.IsKeyJustPressed(ebiten.Key5) {
+		g.EditOpt.ShowTotalGravityGrad = !g.EditOpt.ShowTotalGravityGrad
 	}
 }
 
@@ -144,5 +153,18 @@ func SetObjects(g *Game) {
 		} else {
 			g.Universe.Objects = g.Universe.Objects[:r]
 		}
+	}
+}
+
+/*
+Keys:
+	E + ArrowUp : Gradient exp += Gradient exp desloc.
+	E + ArrowDown : Gradient exp -= Gradient exp desloc.
+*/
+func SetGradExp(g *Game) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
+		g.EditOpt.GradExp += g.EditOpt.GradExpDesloc
+	} else if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
+		g.EditOpt.GradExp -= g.EditOpt.GradExpDesloc
 	}
 }

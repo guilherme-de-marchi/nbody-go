@@ -11,7 +11,8 @@ func IntToRgb(c int) color.RGBA {
 		R: uint8((c >> 24) & 0xFF),
 		G: uint8((c >> 16) & 0xFF),
 		B: uint8((c >> 8) & 0xFF),
-		A: uint8(c & 0xFF),
+		A: 255,
+		// A: uint8(c & 0xFF),
 	}
 }
 
@@ -21,6 +22,7 @@ func IntToRgbRange(c, r int) color.RGBA {
 		R: uint8((c >> 24) & 0xFF),
 		G: uint8((c >> 16) & 0xFF),
 		B: uint8((c >> 8) & 0xFF),
-		A: uint8(c & 0xFF),
+		A: 255,
+		// A: uint8(c & 0xFF),
 	}
 }

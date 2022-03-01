@@ -2,6 +2,7 @@ package simulation
 
 import (
 	"image/color"
+	"math"
 
 	"github.com/Guilherme-De-Marchi/GravitySimulator/util"
 )
@@ -51,21 +52,21 @@ func (u *Universe) ApplyGravity() {
 /*
 Returns the gradient matrix and the highest value found
 */
-func (u *Universe) GetViewGravityGradient(size Coordinates2D, r, offset [2]float64) ([][]float64, float64) {
-	obj := NewObject("-", color.RGBA{}, Coordinates2D{}, 1, 0) // irrelevant object
+func (u *Universe) GetViewGravityGradient(exp float64, size, r, offset [2]float64) ([][]float64, float64) {
+	obj := NewObject("-", color.RGBA{}, Coordinates2D{}, 10000, 0) // irrelevant object
 	var totalf float64
 
-	gradient := make([][]float64, int(size.Y))
+	gradient := make([][]float64, int(size[1]))
 	var high float64
 	for i := range gradient {
-		gradient[i] = make([]float64, int(size.X))
+		gradient[i] = make([]float64, int(size[0]))
 		for j := range gradient[i] {
 			totalf = 0
 			obj.Pos.X, obj.Pos.Y = util.PxToPos([2]float64{float64(j), float64(i)}, r, offset)
 			for _, tar := range u.Objects {
 				totalf += obj.GetGravitationalForce(tar, u.Gconst).Magnitude
 			}
-			gradient[i][j] = totalf
+			gradient[i][j] = math.Pow(totalf, exp)
 
 			if totalf > high {
 				high = totalf
@@ -76,26 +77,29 @@ func (u *Universe) GetViewGravityGradient(size Coordinates2D, r, offset [2]float
 	return gradient, high
 }
 
-func (u *Universe) GetTotalGravityGradient(size Coordinates2D) ([][]float64, float64) {
+func (u *Universe) GetTotalGravityGradient(step, exp float64) ([][]float64, float64) {
 	obj := NewObject("-", color.RGBA{}, Coordinates2D{}, 1, 0) // irrelevant object
 	var totalf float64
 
-	gradient := make([][]float64, int(size.Y))
+	tX := int(u.Size.X / step)
+	tY := int(u.Size.Y / step)
+	gradient := make([][]float64, tY)
 	var high float64
-	for i := range gradient {
-		gradient[i] = make([]float64, int(size.X))
-		for j := range gradient[i] {
+	for i := 0; i < tY; i++ {
+		gradient[i] = make([]float64, tX)
+		for j := 0; j < tX; j++ {
 			totalf = 0
-			obj.Pos.X, obj.Pos.Y = float64(j), float64(i)
 			for _, tar := range u.Objects {
 				totalf += obj.GetGravitationalForce(tar, u.Gconst).Magnitude
 			}
-			gradient[i][j] = totalf
+			gradient[i][j] = math.Pow(totalf, exp)
 
 			if totalf > high {
 				high = totalf
 			}
+			obj.Pos.X += step
 		}
+		obj.Pos.Y += step
 	}
 
 	return gradient, high

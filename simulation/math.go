@@ -94,3 +94,7 @@ func CalcResultingPosition(pos Coordinates2D, vel Vector2, accel float64) Coordi
 		Y: pos.Y + vel.Direction.Y*vel.Magnitude,
 	}
 }
+
+func CalcDensity(m, r float64) float64 {
+	return m / (math.Pi * math.Pow(r, 2))
+}

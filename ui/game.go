@@ -77,7 +77,7 @@ func (g *Game) UpdateWinGravityGrad() {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Clear()
-	screen.Fill(color.Black)
+	screen.Fill(color.White)
 
 	if g.EditOpt.ShowPauseScreen {
 		g.DrawPauseScreen(screen)

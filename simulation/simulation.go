@@ -1,6 +1,10 @@
 package simulation
 
-import "github.com/hajimehoshi/ebiten/v2"
+import (
+	"image"
+
+	"github.com/hajimehoshi/ebiten/v2"
+)
 
 type RandOpt struct {
 	MassR     [2]float64 `json:"mass_range,omitempty"`
@@ -9,7 +13,13 @@ type RandOpt struct {
 }
 
 type EditOpt struct {
-	ShowName      bool          `json:"show_object_name,omitempty"`
+	ShowPauseScreen      bool `json:"show_pause_screen,omitempty"`
+	ShowDebug            bool `json:"show_debug,omitempty"`
+	ShowObject           bool `json:"show_object,omitempty"`
+	ShowObjectName       bool `json:"show_object_name,omitempty"`
+	ShowWinGravityGrad   bool `json:"show_windown_gravity_gradient,omitempty"`
+	ShowTotalGravityGrad bool `json:"show_total_gravity_gradient,omitempty"`
+
 	ObjectsDesloc int           `json:"object_quantity_desloc,omitempty"`
 	GconstDesloc  float64       `json:"gravitational_const_desloc,omitempty"`
 	Zoom          float64       `json:"initial_zoom,omitempty"`
@@ -21,10 +31,11 @@ type EditOpt struct {
 type Simulation struct {
 	Universe *Universe
 
-	RandOpt
-	EditOpt
+	RandOpt RandOpt
+	EditOpt EditOpt
 
-	Keys []ebiten.Key
+	GradientImage *image.RGBA
+	Keys          []ebiten.Key
 }
 
 func NewSimulation(u *Universe, randOpt RandOpt, editOpt EditOpt) *Simulation {

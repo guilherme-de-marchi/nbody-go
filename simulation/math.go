@@ -2,7 +2,6 @@ package simulation
 
 import (
 	"math"
-	"math/rand"
 )
 
 // Gravitational Constant
@@ -94,8 +93,4 @@ func CalcResultingPosition(pos Coordinates2D, vel Vector2, accel float64) Coordi
 		X: pos.X + vel.Direction.X*vel.Magnitude,
 		Y: pos.Y + vel.Direction.Y*vel.Magnitude,
 	}
-}
-
-func RandFloatRange(min, max float64) float64 {
-	return min + rand.Float64()*(max-min)
 }

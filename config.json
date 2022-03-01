@@ -2,8 +2,8 @@
     "generation_type": "randomized",
     "universe": {
         "size": {
-            "x": 800,
-            "y": 800
+            "x": 300,
+            "y": 300
         }
     },
     "random_options": {

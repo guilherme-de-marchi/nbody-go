@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"math/rand"
 	"os"
@@ -21,16 +20,6 @@ type SimulConfig struct {
 	Universe       simul.Universe `json:"universe,omitempty"`
 	RandOpt        simul.RandOpt  `json:"random_options,omitempty"`
 	EditOpt        simul.EditOpt  `json:"edit_options,omitempty"`
-}
-
-func printObjects(u *simul.Universe) {
-	for {
-		fmt.Println("\n###############")
-		for _, obj := range u.Objects {
-			fmt.Println(obj.Pos)
-		}
-		fmt.Println("###############")
-	}
 }
 
 func main() {

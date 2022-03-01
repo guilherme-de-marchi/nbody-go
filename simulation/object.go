@@ -1,21 +1,44 @@
 package simulation
 
-import "github.com/Guilherme-De-Marchi/GravitySimulator/util"
+import (
+	"image/color"
+
+	"github.com/Guilherme-De-Marchi/GravitySimulator/util"
+)
 
 type Object struct {
 	Name                string
+	Color               color.RGBA
 	Pos                 Coordinates2D
 	Mass, Accel, Radius float64
 	Vel, Momentum       Vector2
 }
 
-func NewObject(name string, pos Coordinates2D, mass, radius float64) *Object {
+func NewObject(name string, color color.RGBA, pos Coordinates2D, mass, radius float64) *Object {
 	return &Object{
 		Name:   name,
+		Color:  color,
 		Pos:    pos,
 		Mass:   mass,
 		Radius: radius,
 	}
+}
+
+func GetRandomObjects(posR Coordinates2D, massR, radR [2]float64, qtt int) []*Object {
+	objs := make([]*Object, qtt)
+	for i := range objs {
+		m := util.RandFloatRange(massR[0], massR[1])
+		r := util.RandFloatRange(radR[0], radR[1])
+
+		objs[i] = &Object{
+			Name:   util.RandString(8),
+			Color:  util.IntToRgbRange(int(m), int(massR[1])),
+			Pos:    Coordinates2D{util.RandFloatRange(0, posR.X), util.RandFloatRange(0, posR.Y)},
+			Mass:   m,
+			Radius: r,
+		}
+	}
+	return objs
 }
 
 func (obj *Object) GetDistance(tar *Object) float64 {
@@ -80,17 +103,4 @@ func (obj *Object) GetResultingPos() Coordinates2D {
 
 func (obj *Object) SetPos(pos Coordinates2D) {
 	obj.Pos = pos
-}
-
-func GetRandomObjects(posR Coordinates2D, massR, radR [2]float64, qtt int) []*Object {
-	objs := make([]*Object, qtt)
-	for i := range objs {
-		objs[i] = NewObject(
-			util.RandString(8),
-			Coordinates2D{RandFloatRange(0, posR.X), RandFloatRange(0, posR.Y)},
-			RandFloatRange(massR[0], massR[1]),
-			RandFloatRange(massR[0], massR[1]),
-		)
-	}
-	return objs
 }

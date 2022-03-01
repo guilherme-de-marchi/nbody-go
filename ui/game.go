@@ -65,10 +65,11 @@ func (g *Game) UpdateWinGravityGrad() {
 	)
 
 	var c color.RGBA
+	rc := high / util.MAX_RGB_INT
 	for i := 0; i < int(g.Universe.Size.Y); i++ {
 		for j := 0; j < int(g.Universe.Size.X); j++ {
 			f := gradient[i][j]
-			c = util.IntToRgbRange(int(f), int(high))
+			c = util.IntToRgb(int(f / rc))
 			g.GradientImage.Set(j, i, c)
 		}
 	}
@@ -118,7 +119,7 @@ func (g *Game) DrawPauseScreen(screen *ebiten.Image) {
 }
 
 func (g *Game) DrawDebug(screen *ebiten.Image) {
-	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("TPS: %0.2f", ebiten.CurrentFPS()), 0, 0)
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("TPS: %0.2f", ebiten.CurrentTPS()), 0, 0)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Zoom: %v", 1/g.EditOpt.Zoom), 0, 15)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Offset: %vx  %vy", g.EditOpt.Offset.X, g.EditOpt.Offset.Y), 0, 30)
 	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("Universe size: %vx  %vy", g.Universe.Size.X, g.Universe.Size.Y), 0, 45)

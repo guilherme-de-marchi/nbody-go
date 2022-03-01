@@ -7,16 +7,16 @@
         }
     },
     "random_options": {
-        "mass_range": [1000, 100000000],
+        "mass_range": [10, 100000000],
         "object_radius_range": [1, 1],
         "object_quantity": 2
     },
     "edit_options": {
+        "show_object": true,
         "object_quantity_desloc": 10,
         "gravitational_const_desloc": 10,
         "initial_zoom": 1,
         "zoom_desloc": 2,
-        "initial_offset": [0, 0],
         "offset_desloc": 10
     }
 }

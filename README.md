@@ -12,7 +12,7 @@ $ go run .
 
 Press ESC to see the available commands:
 
-![commands]("https://github.com/Guilherme-De-Marchi/nbody-go/blob/main/img/commands.png")
+![commands](https://github.com/Guilherme-De-Marchi/nbody-go/blob/main/img/commands.png)
 
 ## Setup configuration
 

@@ -6,8 +6,8 @@ import (
 	"image/color"
 	"log"
 
-	simul "github.com/Guilherme-De-Marchi/GravitySimulator/simulation"
-	"github.com/Guilherme-De-Marchi/GravitySimulator/util"
+	simul "github.com/Guilherme-De-Marchi/nbody-go/simulation"
+	"github.com/Guilherme-De-Marchi/nbody-go/util"
 	"github.com/fogleman/gg"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"

@@ -1,6 +1,6 @@
-module github.com/Guilherme-De-Marchi/GravitySimulator
+module github.com/Guilherme-De-Marchi/nbody-go
 
-go 1.17
+go 1.20
 
 require (
 	github.com/fogleman/gg v1.3.0

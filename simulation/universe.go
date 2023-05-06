@@ -4,7 +4,7 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/Guilherme-De-Marchi/GravitySimulator/util"
+	"github.com/Guilherme-De-Marchi/nbody-go/util"
 )
 
 type Universe struct {

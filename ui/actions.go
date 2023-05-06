@@ -1,7 +1,7 @@
 package ui
 
 import (
-	simul "github.com/Guilherme-De-Marchi/GravitySimulator/simulation"
+	simul "github.com/Guilherme-De-Marchi/nbody-go/simulation"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
@@ -92,6 +92,7 @@ func ShowTotalGravityGrad(g *Game) {
 
 /*
 Keys:
+
 	Z + ArrowUp : Zoom /= Zoom desloc.
 	Z + ArrowDown : Zoom *= Zoom desloc.
 */
@@ -116,6 +117,7 @@ func NewRandomUniverse(g *Game) {
 
 /*
 Keys:
+
 	G + ArrowUp : Gravitational constant *= gConst desloc.
 	G + ArrowDown : Gravitational constant /= gConst desloc.
 */
@@ -129,6 +131,7 @@ func SetGconst(g *Game) {
 
 /*
 Keys:
+
 	O + ArrowUp : Add n random objects to the universe.
 	O + ArrowDown : Remove last n objects added to the universe.
 
@@ -158,6 +161,7 @@ func SetObjects(g *Game) {
 
 /*
 Keys:
+
 	E + ArrowUp : Gradient exp += Gradient exp desloc.
 	E + ArrowDown : Gradient exp -= Gradient exp desloc.
 */

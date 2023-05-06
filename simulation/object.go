@@ -3,7 +3,7 @@ package simulation
 import (
 	"image/color"
 
-	"github.com/Guilherme-De-Marchi/GravitySimulator/util"
+	"github.com/Guilherme-De-Marchi/nbody-go/util"
 )
 
 type Object struct {

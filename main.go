@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	simul "github.com/Guilherme-De-Marchi/GravitySimulator/simulation"
-	"github.com/Guilherme-De-Marchi/GravitySimulator/ui"
+	simul "github.com/Guilherme-De-Marchi/nbody-go/simulation"
+	"github.com/Guilherme-De-Marchi/nbody-go/ui"
 )
 
 var (
